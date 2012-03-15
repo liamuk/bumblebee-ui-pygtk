@@ -49,14 +49,14 @@ class BumblebeeIndicator():
         self.indicator.set_from_file("%s/bumblebee-indicator.svg" % Config.icon_file_directory )
         self.indicator.set_tooltip("Bumblebee Off")        
         self.indicator.connect("popup-menu", self.build_menu)
-        
+
         self.card_state=False
         self.lock_file = "/tmp/.X%s-lock" % Config.vgl_display
         
     def quit(self, widget, data=None):
         gtk.main_quit()
 
-    def build_menu(self, icon, button, time):
+    def build_menu(self, icon, button, presstime):
         self.menu = gtk.Menu()
         self.switch = gtk.CheckMenuItem()
         self.initial_state_checker()
@@ -81,7 +81,7 @@ class BumblebeeIndicator():
         self.menu.append(quit)
         
         self.menu.show_all()
-        self.menu.popup(None, None, gtk.status_icon_position_menu, button, time, self.indicator)
+        self.menu.popup(None, None, gtk.status_icon_position_menu, button, presstime, self.indicator)
 
     def build_menu_separator(self, menu):
     	separator = gtk.SeparatorMenuItem()
@@ -137,9 +137,12 @@ class BumblebeeIndicator():
         self.indicator.set_tooltip(label)
         self.card_state = status
         if notify == True: self.notify_state(label, comment, icon)
-        self.switch.set_label(label)
-        self.switch.set_active(status)
-        
+        try:
+			self.switch.set_label(label)
+        	self.switch.set_active(status)
+		except AttributeError:
+       		pass
+ 
 # FUNCTION TO DEFINE THE APPLICATIONS SETTING LINK IN THE INDICATOR
 
     def app_configure(self,widget):
