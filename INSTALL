@@ -20,12 +20,9 @@
 cp icons/*.* /usr/share/icons/hicolor/48x48/apps/
 mkdir /usr/share/bumblebee-ui/
 cp app/*.* /usr/share/bumblebee-ui/
-cp bumblebee-app-settings.desktop /usr/share/applications/
 cp bumblebee-indicator.desktop /usr/share/applications/
-ln -s /usr/share/bumblebee-ui/AppSettings.py /usr/local/bin/bumblebee-app-settings
 ln -s /usr/share/bumblebee-ui/Bumblebee-Indicator.py /usr/local/bin/bumblebee-indicator
 
-chmod +x /usr/share/applications/bumblebee-app-settings.desktop
 chmod +x /usr/share/applications/bumblebee-indicator.desktop
 chmod +x -R /usr/share/bumblebee-ui/
 

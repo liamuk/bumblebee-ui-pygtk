@@ -22,32 +22,8 @@
 import os
 import gtk
 
-#DESKTOP FILES PATH
-user_home_directory = os.path.expanduser('~')
-user_relative_desktop_file_directory = '/.local/share/applications/'
-user_desktop_file_directory = user_home_directory + user_relative_desktop_file_directory
-global_desktop_file_directory = '/usr/share/applications/'
-
 #ICONS FILE PATH
 icon_file_directory = '/usr/share/icons/hicolor/48x48/apps/'
-
-#ACCEPTED COMPRESSION
-compression_list=['jpeg','proxy','rgb','yuv','xv']
-
-#MODE LIST
-#TODO Need to be set to a list maybe
-mode_keys={'perf':"Performance",
-    'eco':"Power Save",
-    'option':"Optional"}
-
-#ICON FILES THEME
-icon_size=24
-default_icon_name='application-x-executable'
-
-#APP SETTINGS COLOR THEME
-configured_color='#00FF33'
-to_configure_color='#FFFF33'
-to_unconfigure_color='#FF0033'
 
 #BUMBLEBEE DEFAULT CONFIGURATION
 config_file_path='/etc/bumblebee/bumblebee.conf'
@@ -58,33 +34,16 @@ def get_config_value(variable_name):
         if variable_name in line:
             return line.split('=',1)[1].replace("\n","")
 
-default_compression= get_config_value('VGL_COMPRESS')
 vgl_display= get_config_value('VirtualDisplay').replace(":","")
 
 #CATEGORIES CONFIGURATION
 
-####TODO There might be a way to get those key from a menu configuration file
-categorie_list=[['Game',	'applications-games'],
-        ['AudioVideo',	'applications-multimedia'],
-        ['Graphics',	'applications-graphics'],
-        ['Network',	'applications-internet'],
-        ['Office',	'applications-office'],
-        ['Settings',	'applications-system'],
-        ['System',	'applications-electronics'],
-        ['Utility',	'applications-utilities']]
-unmatch_categorie=['Miscellaneous','applications-other']
-uncategorized_categorie=['Uncategorized', 'application-x-executable']
-
-#DEFAULT APPLICATIONS IN THE PREFERRED APP MENU :
-default_preferred_apps =[ ['Glxgears', ['optirun', 'glxgears']] , 
-                        ['Glxspheres', ['optirun', 'glxspheres']] ]
-
 #NOTIFICATION MESSAGES :
 #TODO Revert when the possibility to turn off the card is back
-attention_label="Bumblebee : ON"
-attention_comment="Bumblebee is in use"
-active_label="Bumblebee : OFF"
-active_comment="Bumblebee is not used anymore"
+attention_label="Discrete GPU: ON"
+attention_comment=""
+active_label="Discrete GPU: OFF"
+active_comment=""
 
 #TODO : There might be a way to use string formatting to simplify the config definition
 #FIXME There must be a better way to store config

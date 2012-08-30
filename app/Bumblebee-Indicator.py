@@ -32,13 +32,11 @@ import subprocess
 
 # ORIGINAL CLASS
 import Config
-from AppSettings import Applications_settings, IconSet
-from DesktopFile import DesktopFile, DesktopFileSet
 
 class BumblebeeIndicator():
     def notify_state(self, title, msg, icon_name):
         pynotify.init("Bumblebee notification")
-        self.notification= pynotify.Notification(title)
+        self.notification= pynotify.Notification(title, msg)
         self.notification.set_urgency(pynotify.URGENCY_LOW)
         self.notification.set_timeout(5000)
         self.notification.show()
@@ -47,62 +45,13 @@ class BumblebeeIndicator():
     def __init__(self):
         self.indicator = gtk.StatusIcon() 
         self.indicator.set_from_file("%s/bumblebee-indicator.svg" % Config.icon_file_directory )
-        self.indicator.set_tooltip("Bumblebee Off")        
-        self.indicator.connect("popup-menu", self.build_menu)
+        self.indicator.set_tooltip(Config.attention_label)        
 
         self.card_state=False
         self.lock_file = "/tmp/.X%s-lock" % Config.vgl_display
         
     def quit(self, widget, data=None):
         gtk.main_quit()
-
-    def build_menu(self, icon, button, presstime):
-        self.menu = gtk.Menu()
-        self.switch = gtk.CheckMenuItem()
-        self.initial_state_checker()
-        self.switch.set_sensitive(False)
-        self.menu.append(self.switch)
-        
-        self.build_menu_separator(self.menu)
-                
-        self.prefered_app_submenu = gtk.MenuItem("Preferred Apps")
-        self.update_menu()
-        self.prefered_app_submenu.connect('activate', self.update_menu)
-        self.menu.append(self.prefered_app_submenu)
-        
-        item2 = gtk.MenuItem("Configure Apps")
-        item2.connect("activate", self.app_configure)
-        self.menu.append(item2)
-        
-        self.build_menu_separator(self.menu)
-        
-        quit = gtk.ImageMenuItem(gtk.STOCK_QUIT)
-        quit.connect("activate", self.quit)
-        self.menu.append(quit)
-        
-        self.menu.show_all()
-        self.menu.popup(None, None, gtk.status_icon_position_menu, button, presstime, self.indicator)
-
-    def build_menu_separator(self, menu):
-    	separator = gtk.SeparatorMenuItem()
-    	separator.show()
-        menu.append(separator)
-
-# FUNCTIONS TO BUILD THE "PREFERRED APP" MENU FROM THE LOCAL DESKTOP FILES
-    def update_menu(self, widget=None):	
-        pref_menu=gtk.Menu()
-        self.add_submenu_items( pref_menu, Config.default_preferred_apps )
-    	self.build_menu_separator( pref_menu )
-        self.add_submenu_items( pref_menu, DesktopFileSet().get_configured_from_check() )
-        pref_menu.show()
-        self.prefered_app_submenu.set_submenu(pref_menu)
-
-    def add_submenu_items(self, submenu, items_list):
-        for Name, Exec_list in items_list : 
-            subitem = gtk.MenuItem(label=Name)
-            subitem.connect("activate", self.call_app, Exec_list)
-        	subitem.show()
-            submenu.append( subitem )
 
 # FUNCTIONS TO CHECK FOR THE STATE OF THE INDICATOR
     def initial_state_checker(self):
@@ -111,13 +60,12 @@ class BumblebeeIndicator():
 
     def state_checker(self):
         if self.attention_state_condition():
-            if self.card_state == False : self.set_attention_state()
-        elif self.card_state == True: self.set_active_state()	
+            if not self.card_state: self.set_attention_state()
+        elif self.card_state: self.set_active_state()	
         return True
 	
     def attention_state_condition(self):
-        if os.path.exists(self.lock_file): return True
-        else: return False
+        return os.path.exists(self.lock_file)
 
 # FUNCTIONS TO SET THE STATE OF THE INDICATOR AND LAUNCH NOTIFICATION
     def set_attention_state(self, notify=True):
@@ -136,23 +84,13 @@ class BumblebeeIndicator():
         self.indicator.set_from_file("%(dir)s/%(file)s.svg" % {"dir": Config.icon_file_directory, "file": icon})
         self.indicator.set_tooltip(label)
         self.card_state = status
-        if notify == True: self.notify_state(label, comment, icon)
+        if notify: self.notify_state(label, comment, icon)
         try:
 			self.switch.set_label(label)
         	self.switch.set_active(status)
 		except AttributeError:
        		pass
  
-# FUNCTION TO DEFINE THE APPLICATIONS SETTING LINK IN THE INDICATOR
-
-    def app_configure(self,widget):
-        Applications_settings()
-
-# FUNCTION TO LAUNCH THE APPS WITHIN THE INDICATOR
-    def call_app(self, widget, app_exec):
-#FIXME There is a problem when closing the launched app and when the indicator has been closed: the indicator is still running : What a daemon!!
-        subprocess.Popen(app_exec,shell=False)
-
 # MAIN LOOP LAUNCHING A STATE CHECK EVERY TWO SECONDS
     def main(self):
         self.state_checker()
